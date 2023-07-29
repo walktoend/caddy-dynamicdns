@@ -171,15 +171,13 @@ func (a App) checkIPAndUpdateDNS() {
 
 	allDomains := a.allDomains()
 
-	// if we don't know current IPs, look them up from DNS
-	if lastIPs == nil {
-		lastIPs, err = a.lookupCurrentIPsFromDNS(allDomains)
-		if err != nil {
-			// not the end of the world, but might be an extra initial API hit with the DNS provider
-			a.logger.Error("unable to lookup current IPs from DNS records", zap.Error(err))
-		}
-		a.logger.Debug("looked up current IPs from DNS", zap.Any("lastIPs", lastIPs))
+	// look current IPs up from DNS every time
+	lastIPs, err = a.lookupCurrentIPsFromDNS(allDomains)
+	if err != nil {
+		// not the end of the world, but might be an extra initial API hit with the DNS provider
+		a.logger.Error("unable to lookup current IPs from DNS records", zap.Error(err))
 	}
+	a.logger.Debug("looked up current IPs from DNS", zap.Any("lastIPs", lastIPs))
 
 	// look up current address(es) from first successful IP source
 	var currentIPs []net.IP
